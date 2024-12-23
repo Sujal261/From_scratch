@@ -6,7 +6,7 @@ class MSELoss:
         y_true = y_true if isinstance(y_true, Tensor) else Tensor(y_true)
         diff = y_pred - y_true
         mse_loss = np.mean(diff.data**2)
-        loss_tensor=Tensor(mse_loss, requires_grad=True)
+        loss_tensor=Tensor(mse_loss)
         loss_tensor._y_pred = y_pred
         loss_tensor._y_true = y_true
         return loss_tensor
@@ -15,10 +15,15 @@ class MSELoss:
         grad = 2 * (loss_tensor._y_pred.data - loss_tensor._y_true.data) / len(loss_tensor._y_true.data)
         loss_tensor._y_pred.backward(grad) # Propagate gradient to y_pred
 
-# y_pred = Tensor(np.array([3.0, 2.5, 1.0]))
-# y_true = Tensor(np.array([3.0,3.0,1.0]))
-# loss_fn = MSELoss()
-# loss = loss_fn(y_pred, y_true)
-# print(f"loss :{loss.data}")
-# loss_fn.backward()
-# print(f"Gradient of y_pred :{y_pred.grad}")
+class BinaryCrossEntropyLoss:
+    def __call__(self, y_pred, y_true):
+        y_pred = y_pred if isinstance(self, Tensor ) else Tensor(y_pred)
+        y_true = y_true if isinstance(self, Tensor) else Tensor(y_true)
+        BinaryCrossEntropyLoss_loss = -np.mean(y_true.data*np.log(y_pred.data)+(1-y_true.data)*np.log(1-y_pred.data))
+        loss_tensor = Tensor(BinaryCrossEntropyLoss_loss)
+        loss_tensor._y_pred = y_pred
+        loss_tensor._y_true = y_true
+        return loss_tensor
+    def backward(self, loss_tensor):
+        grad = (loss_tensor._y_pred.data-loss_tensor._y_true.data)/(loss_tensor._y_pred.data*(1-loss_tensor._y_pred.data))
+        
