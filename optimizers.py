@@ -1,7 +1,7 @@
 import numpy as np
 from Tensor import Tensor
 
-class optimizers:
+class Optimizer:
     def __init__(self, params, lr):
         self.params = params
         self.lr = lr
