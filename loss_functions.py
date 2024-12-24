@@ -20,15 +20,17 @@ class BinaryCrossEntropyLoss:
     def __call__(self, y_pred, y_true):
         y_pred = y_pred if isinstance(y_pred, Tensor ) else Tensor(y_pred)
         y_true = y_true if isinstance(y_true, Tensor) else Tensor(y_true)
-        print(f"{y_pred.data}")
-        print(f"{y_true.data}")
         epsilon = 1e-12
         y_pred_clamped = np.clip(y_pred.data, epsilon, 1- epsilon)
         BinaryCrossEntropyLoss_loss = -np.mean(y_true.data*np.log(y_pred_clamped)+(1-y_true.data)*np.log(1-y_pred_clamped))
+        y_pred = y_pred if isinstance(self, Tensor ) else Tensor(y_pred)
+        y_true = y_true if isinstance(self, Tensor) else Tensor(y_true)
+        BinaryCrossEntropyLoss_loss = -np.mean(y_true.data*np.log(y_pred.data)+(1-y_true.data)*np.log(1-y_pred.data))
         loss_tensor = Tensor(BinaryCrossEntropyLoss_loss)
         loss_tensor._y_pred = y_pred
         loss_tensor._y_true = y_true
         return loss_tensor
+
     
     def backward(self, loss_tensor):
         epsilon = 1e-12
