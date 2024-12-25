@@ -32,10 +32,8 @@ class classification:
         x=self.sigmoid(x)
         return x
     def parameters(self):
-        params=[]
-        params.extend(self.linear_layer1.parameters())
-        params.extend(self.linear_layer2.parameters())
-        return params
+
+        return self.linear_layer1.parameters()+self.linear_layer2.parameters()
         
 model =classification(2,1)
 loss_fn = BinaryCrossEntropyLoss()
