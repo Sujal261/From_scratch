@@ -1,7 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 from loss_functions import MSELoss
-from optimizers import optimizers
+from optimizers import Optimizer
 from layers import Linear 
 from Tensor import Tensor
 from plotting_curves import loss_curve
@@ -49,7 +49,7 @@ model1 = simple(1,1)
 
 
 loss_fn = MSELoss()
-optimizer = optimizers(params= model1.parameters(), lr = 0.1)
+optimizer = Optimizer(params= model1.parameters(), lr = 0.1)
 
 
 epochs = 200

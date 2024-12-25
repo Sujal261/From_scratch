@@ -7,7 +7,7 @@ class Sigmoid:
         self.sigmoid_output = 1/(1+np.exp(-x.data))
         return Tensor(self.sigmoid_output, requires_grad=True)
     
-    def backward(self):
+    def grad_fn(self):
         sigmoid_grad = self.sigmoid_output * (1- self.sigmoid_output)
         self.x.grad = sigmoid_grad
         
@@ -16,7 +16,7 @@ class ReLU:
         self.x = x 
         self.relu_output = np.maximum(0, x.data)
         return Tensor(self.relu_output, requires_grad=True)
-    def backward(self):
+    def grad_fn(self):
         relu_grad = np.where(self.relu_output>0, 1 , 0)
         self.x.grad = relu_grad
         
@@ -26,7 +26,7 @@ class Tanh:
         self.tanh_output = np.tanh(x.data)
         return Tensor(self.tanh_output, requires_grad=True)
     
-    def backward(self):
+    def grad_fn(self):
         tanh_grad = 1- self.tanh_output**2
         self.x.grad = tanh_grad
         

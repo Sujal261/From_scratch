@@ -12,6 +12,12 @@ class Linear:
         y=x@self.weights+self.bias
         return y
     
+    # def parameters(self):
+    #     p = self.weights
+    #     p = p+self.bias
+    #     print(p.requires_grad)
+    #     return p
+        
     def parameters(self):
         return [self.weights, self.bias]
     
