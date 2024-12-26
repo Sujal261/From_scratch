@@ -5,6 +5,7 @@ from optimizers import Optimizer
 from layers import Linear 
 from Tensor import Tensor
 from plotting_curves import loss_curve
+from Actication import ReLU
 #Making data ready
 weight = 0.7 
 bias = 0.3
@@ -39,11 +40,16 @@ def plot_curve(train_data = x_train,
 plot_curve()
 class simple():
     def __init__(self, in_features, out_features):
-        self.layer1 = Linear(in_features=in_features,out_features=out_features)
+        self.layer1 = Linear(in_features=in_features,out_features=6)
+        self.relu = ReLU()
+        self.layer2 = Linear(in_features=6, out_features=out_features)
     def forward(self,x):
-        return self.layer1(x)
+        x= self.layer1(x)
+        x = self.relu(x)
+        x = self.layer2(x)
+        return x
     def parameters(self):
-        return self.layer1.parameters()
+        return self.layer1.parameters()+self.layer2.parameters()
     
 model1 = simple(1,1)
 

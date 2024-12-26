@@ -3,7 +3,8 @@ import numpy as np
 
 class Linear:
     def __init__(self, in_features, out_features):
-        self.weights = Tensor(np.random.randn(in_features, out_features), requires_grad = True)
+        scale = np.sqrt(2.0/in_features)
+        self.weights = Tensor(np.random.randn(in_features, out_features)*scale, requires_grad = True)
         self.bias = Tensor(np.zeros((1, out_features)), requires_grad = True)
         
     def forward(self,x):
