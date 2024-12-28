@@ -32,16 +32,13 @@ class classification:
         
         # Debug prints
         x1 = self.linear_layer1(x)
-        print(f"After linear1 - mean: {x1.data.mean():.4f}, std: {x1.data.std():.4f}")
+       
         
         x2 = self.relu(x1)
-        print(f"After ReLU - mean: {x2.data.mean():.4f}, std: {x2.data.std():.4f}")
-        
         x3 = self.linear_layer2(x2)
-        print(f"After linear2 - mean: {x3.data.mean():.4f}, std: {x3.data.std():.4f}")
         
         x4 = self.sigmoid(x3)
-        print(f"After sigmoid - mean: {x4.data.mean():.4f}, std: {x4.data.std():.4f}")
+        
         
         return x4
     def parameters(self):
@@ -51,7 +48,7 @@ class classification:
 model =classification(2,1)
 loss_fn = BinaryCrossEntropyLoss()
 # print(model.parameters())
-optimizer = Optimizer(params = model.parameters(), lr = 0.01)
+optimizer = Optimizer(params = model.parameters(), lr = 0.1)
 
 #Making a training loop 
 epochs = 100
@@ -59,21 +56,7 @@ for epoch in range(epochs):
     y_pred = model.forward(X_train_tensor)
     loss = loss_fn(y_pred, y_train_tensor)
     optimizer.zero_grad()
-    loss.backward()
-    for i, param in enumerate(model.parameters()):
-      if param.grad is not None:
-        print(f"Parameter {i}: Gradient - Mean: {np.mean(param.grad):.4f}, Std: {np.std(param.grad):.4f}")
-      else:
-        print(f"Parameter {i}: Gradient is None")
-
-    for i, param in enumerate(model.parameters()):
-       print(f"Before step - Parameter {i}: Mean: {np.mean(param.data):.4f}, Std: {np.std(param.data):.4f}")
-
+    loss.backward(loss)
     optimizer.step()
-
-    for i, param in enumerate(model.parameters()):
-       print(f"After step - Parameter {i}: Mean: {np.mean(param.data):.4f}, Std: {np.std(param.data):.4f}")
-
-    
     if epoch %10 ==0:
          print(f"Epochs:{epoch} train loss:{loss.data}")

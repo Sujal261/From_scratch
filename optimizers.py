@@ -11,7 +11,6 @@ class Optimizer:
             param.grad = None  
     
     def step(self):
-        # print(self.params)
         for param in self.params:
             if param.requires_grad and param.grad is not None:
                 grad = param.grad if isinstance(param.grad, np.ndarray) else np.array(param.grad)
