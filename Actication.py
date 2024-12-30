@@ -8,35 +8,35 @@ class Sigmoid:
 
     def __call__(self, x):
         self.input = x
-        # Apply Sigmoid activation
         sigmoid_output = 1 / (1 + np.exp(-x.data))
         self.output = sigmoid_output
-        
-        # If the tensor requires gradients, return a Tensor with gradient computation function
         requires_grad = x.requires_grad
         
-        def backward(grad):
+        def grad_fn(grad):
             if self.input.requires_grad:
-                # Calculate the gradient for Sigmoid
-                sigmoid_grad = grad.data * self.output * (1 - self.output)
-                self.input.grad = Tensor(sigmoid_grad)
+                sigmoid_grad = grad*self.output * (1 - self.output)
+                self.input.backward(sigmoid_grad)
         
-        return Tensor(sigmoid_output, requires_grad=requires_grad, grad_fn=backward if requires_grad else None)
+        return Tensor(sigmoid_output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None)
 
 
 class ReLU:
     def __init__(self):
         self.input = None
+        self.output= None
 
     def __call__(self, x):
         self.input = x
-        # Apply ReLU activation
-        return Tensor(np.maximum(0, x.data), requires_grad=True)
+        self.output = np.maximum(0, x.data)
+        output = self.output
+        requires_grad = x.requires_grad
 
-    def backward(self, grad):
-        # Calculate the gradient for ReLU
-        relu_grad = grad.data * (self.input.data > 0)
-        self.input.grad = Tensor(relu_grad)
+        def grad_fn(grad):
+            if self.input.requires_grad:
+              relu_grad =  grad*(self.input.data > 0)
+              self.input.backward(relu_grad)
+           
+        return Tensor(output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None)
 
         
 # class Tanh:

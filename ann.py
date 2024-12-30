@@ -19,7 +19,6 @@ y = weight*x+bias
 #Making training and testing split
 train_split = int(0.8*len(x))
 test_split = len(x) - train_split
-
 x_train , y_train = x[:train_split], y[:train_split]
 x_test, y_test =x[train_split:], y[train_split:]
 x_train_tensor = Tensor(x_train)
@@ -55,7 +54,7 @@ model1 = simple(1,1)
 
 
 loss_fn = MSELoss()
-optimizer = Optimizer(params= model1.parameters(), lr = 0.1)
+optimizer = Optimizer(params= model1.parameters(), lr = 0.001)
 
 
 epochs = 200
@@ -67,7 +66,7 @@ for epoch in range(epochs):
     y_pred = model1.forward(x_train_tensor)
     loss= loss_fn(y_pred, y_train_tensor)
     optimizer.zero_grad()
-    loss_fn.backward(loss)
+    loss.backward()
     optimizer.step()
     y_pred_test = model1.forward(x_test_tensor)
     loss_test = loss_fn(y_pred_test, y_test_tensor)

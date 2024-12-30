@@ -7,6 +7,7 @@ class Tensor:
         self.grad_fn = grad_fn 
         
     def backward(self, grad= None):
+        
         if not self.requires_grad:
             return
         

@@ -18,7 +18,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
     
 # plot(X, y)
 X_train_tensor = Tensor(X_train, requires_grad=True)
-y_train_tensor = Tensor(y_train, requires_grad=True)
+y_train_tensor = Tensor(y_train.reshape(-1,1), requires_grad=True)
     
 class classification:
     def __init__(self, in_features, out_features):
@@ -32,14 +32,9 @@ class classification:
         
         # Debug prints
         x1 = self.linear_layer1(x)
-       
-        
         x2 = self.relu(x1)
         x3 = self.linear_layer2(x2)
-        
         x4 = self.sigmoid(x3)
-        
-        
         return x4
     def parameters(self):
 
