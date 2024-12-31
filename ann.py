@@ -54,7 +54,7 @@ model1 = simple(1,1)
 
 
 loss_fn = MSELoss()
-optimizer = Optimizer(params= model1.parameters(), lr = 0.001)
+optimizer = Optimizer(params= model1.parameters(), lr = 0.01)
 
 
 epochs = 200

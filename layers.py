@@ -12,13 +12,15 @@ class Linear:
             x = Tensor(x)
         self.x = x
         output=x.data@self.weights.data+self.bias.data
-        requires_grad = self.weights.requires_grad or self.bias.requires_grad or self.x.requires_grad
+        requires_grad = self.weights.requires_grad or self.bias.requires_grad or x.requires_grad
         
         def grad_fn(grad):
+            if self.weights.requires_grad:
+                self.weights.grad = x.data.T @ grad
             if self.bias.requires_grad:
-                self.bias.data = np.sum(grad, axis = 0, keepdims=True)
+                self.bias.grad = np.sum(grad, axis = 0, keepdims=True)
             if x.requires_grad:
-                return grad @ self.weights.data.T
+                x.backward(grad @ self.weights.data.T)
         return Tensor(output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None)
    
         

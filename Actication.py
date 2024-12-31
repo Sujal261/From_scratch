@@ -5,19 +5,20 @@ class Sigmoid:
     def __init__(self):
         self.input = None
         self.output = None
-
+        
     def __call__(self, x):
         self.input = x
-        sigmoid_output = 1 / (1 + np.exp(-x.data))
-        self.output = sigmoid_output
+       
+        x_data = np.clip(x.data, -500, 500)  
+        self.output = 1 / (1 + np.exp(-x_data))
         requires_grad = x.requires_grad
         
-        def grad_fn(grad):
+        def backward(grad):
             if self.input.requires_grad:
-                sigmoid_grad = grad*self.output * (1 - self.output)
+                sigmoid_grad = grad * self.output * (1 - self.output)
                 self.input.backward(sigmoid_grad)
         
-        return Tensor(sigmoid_output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None)
+        return Tensor(self.output, requires_grad=requires_grad, grad_fn=backward if requires_grad else None)
 
 
 class ReLU:
