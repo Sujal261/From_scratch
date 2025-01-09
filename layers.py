@@ -28,10 +28,26 @@ class Linear:
         return [self.weights, self.bias]
     
     
-# x = Tensor(np.random.randn(5,3), requires_grad = True)
-# linear_layer = Linear(3,2)
-# output = linear_layer(x)
-# print(f"Output :{output}")
-# params = linear_layer.parameters()
-# print(f"Weights :{params[0].data}")
-# print(f"Bias:{params[1].data}")
+class Flatten:
+    def __init__(self):
+        self.input = None
+        self.output = None
+        
+    def __call__(self, x):
+        self.input = x
+        p =x.data
+        self.output = p.flatten()
+        requires_grad = x.requires_grad
+        
+        def grad_fn(grad):
+            if x.requires_grad:
+                flatten_grad = grad.reshape(x.data.shape)
+                self.input.backward(flatten_grad)
+        return Tensor(self.output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None)
+
+    
+class MaxPool:
+    def __init__(self):
+        self.input = None 
+        self.ouptut = None 
+        

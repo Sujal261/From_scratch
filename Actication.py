@@ -62,7 +62,7 @@ class Softmax:
                            softmax_grad[i]+=softmax_grad[j]*s[i]*(1-s[i])
                        else:
                            softmax_grad[i]+=softmax_grad[j]*(-s[i]*s[j])
-               return softmax_grad
+               self.input.backward(softmax_grad)
                 
                            
         return Tensor(self.output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None)

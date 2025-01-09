@@ -21,7 +21,7 @@ class Tensor:
             self.grad+=grad
             
         if self.grad_fn is not None:
-            self.grad_fn(grad)
+            self.grad_fn(self.grad)
             
             
     def __add__(self, other):
