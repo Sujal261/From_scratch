@@ -89,3 +89,49 @@ class MaxPool:
                 self.input.backward(maxpool_grad)
         return Tensor(self.output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None) 
     
+class Conv2D:
+    def __init__(self, in_features, out_features, stride, kernel_size, padding):
+        scale = np.sqrt(2.0/in_features)
+        self.in_features = in_features
+        self.out_features = out_features
+        self.kernel_size = kernel_size
+        self.padding = padding
+        self.filters = np.random.randn(out_features, in_features, kernel_size, kernel_size)
+        self.bias = np.zeros(out_features)
+        
+    def __call__(self, x):
+        if self.padding>0:
+            x = np.pad(x,((self.padding, self.padding),(self.padding, self.padding)),mode = 'constant', constant_values =0 )
+        i,j = x.shape 
+        k,l = self.kernel_size
+        
+        output_height = (i-k)//self.stride+1
+        output_width = (j-l)//self.sride+1
+        
+        output = np.zeros((output_height, output_width, self.out_feature))
+        
+        for h in range(0, output_width):
+            for w in range(output_width):
+                h_start = h*self.stride
+                h_end = h_start+k
+                w_start = w*self.stride
+                w_end = w_start + l
+                region = x[h_start:h_end, w_start:w_end]
+                
+                for f in range(self.out_features):
+                    output[h, w,f] = np.sum(region * self.filters[f, 0])+self.bias
+                    
+                    
+        def grad_fn(grad):
+            if self.filters.requires_grad:
+                return
+            if self.bias.grad:
+                self.bias.grad  = np.sum(grad)
+            # if x.requires_grad
+                
+                
+            
+                
+                
+    
+    
