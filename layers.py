@@ -49,5 +49,43 @@ class Flatten:
 class MaxPool:
     def __init__(self):
         self.input = None 
-        self.ouptut = None 
+        self.output = None
         
+    def __call__(self, x, stride, kerne_size ):
+        self.input = x
+        e, f = kerne_size
+        i, j = x.data.shape
+        
+        g,h = (i-e)//stride+1, (j-f)//stride+1
+        m=[]
+        max_indices=[]
+        for a in range(0,i, stride):
+            z=[]
+            for b in range(0,j, stride):
+                window= x.data[a:a+e, b:b+f]
+                
+                p=np.max(window)
+                
+                flat_index= np.argmax(window)
+                max_row , max_col = np.unravel_index(flat_index, window.shape)
+                m.append(p)
+                z.append((a+max_row, b+max_col))
+            max_indices.append(z)
+            
+        self.output = np.array(m).reshape(g, h)
+        requires_grad = x.requires_grad
+        max_indices = np.array(max_indices)
+        
+        
+        def grad_fn(grad):
+            if x.requires_grad:
+                maxpool_grad = np.zeros_like(self.input.data)
+               
+                for a in range(g):
+                    for b in range(h):
+                        max_row, max_col = max_indices[a][b]
+                        maxpool_grad[max_row, max_col]+=grad[a,b]
+                        
+                self.input.backward(maxpool_grad)
+        return Tensor(self.output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None) 
+    
