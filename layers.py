@@ -36,7 +36,7 @@ class Flatten:
     def __call__(self, x):
         self.input = x
         p =x.data
-        self.output = p.flatten()
+        self.output = p.reshape(p.shape[0], -1)
         requires_grad = x.requires_grad
         
         def grad_fn(grad):
@@ -51,41 +51,45 @@ class MaxPool:
         self.input = None 
         self.output = None
         
-    def __call__(self, x, stride, kerne_size ):
+    def __call__(self, x, stride, kernel_size ):
         self.input = x
-        e, f = kerne_size
-        i, j = x.data.shape
+        e, f = kernel_size
+        batch_size,channels, i, j = x.data.shape
         
         g,h = (i-e)//stride+1, (j-f)//stride+1
-        m=[]
-        max_indices=[]
-        for a in range(0,i, stride):
-            z=[]
-            for b in range(0,j, stride):
-                window= x.data[a:a+e, b:b+f]
-                
-                p=np.max(window)
-                
-                flat_index= np.argmax(window)
-                max_row , max_col = np.unravel_index(flat_index, window.shape)
-                m.append(p)
-                z.append((a+max_row, b+max_col))
-            max_indices.append(z)
-            
-        self.output = np.array(m).reshape(g, h)
+        output = np.zeros((batch_size, channels, g, h))
+        max_indices = np.zeros((batch_size, channels, g, h, 2))
+        for k in range(batch_size):
+            for c in range(channels):
+                for a in range(g):
+                    
+                    for b in range(h):
+                        h_start = a*stride
+                        w_start = b*stride
+                        window = x.data[k, c, h_start:h_start+e, w_start:w_start+f]
+                        max_value = np.max(window)
+                        flat_index = np.argmax(window)
+                        max_row, max_col = np.unravel_index(flat_index, window.shape)
+                        output[k,c,a,b] = max_value
+                        max_indices[k,c,a,b] = (h_start+max_row, w_start+max_col)
+                        
+        self.output = output
         requires_grad = x.requires_grad
-        max_indices = np.array(max_indices)
+            
         
         
         def grad_fn(grad):
             if x.requires_grad:
                 maxpool_grad = np.zeros_like(self.input.data)
-               
-                for a in range(g):
-                    for b in range(h):
-                        max_row, max_col = max_indices[a][b]
-                        maxpool_grad[max_row, max_col]+=grad[a,b]
-                        
+                for k in range(batch_size):
+                    for c in range(channels):
+                        for a in range(g):
+                            for b in range(h):
+                                
+                                max_row, max_col = map(int,max_indices[k,c,a,b])
+                                print(max_row, max_row)
+                                maxpool_grad[k,c,max_row, max_col]+=grad[k,c,a,b]
+                                
                 self.input.backward(maxpool_grad)
         return Tensor(self.output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None) 
     
@@ -141,20 +145,20 @@ class Conv2D:
             print(grad.shape)
             if self.filters.requires_grad:
                 filter_grad = np.zeros_like(self.filters.data)
-                print(filter_grad.shape)
+
                 for batch_idx in  range(batch_size):
                     for h in range(output_height):
                         for w in range(output_width):
                             h_start = h*self.stride
                             w_start = w*self.stride
                             window=self.x.data[batch_idx,:,h_start:h_start+a, w_start:w_start+b]
-                            if ((h_start+a)>self.x.data[2] or (w_start+b)>self.x.data[3]):
+                            if ((h_start+a)>self.x.data.shape[2] or (w_start+b)>self.x.data.shape[3]):
                                 continue
                             for filter_idx in range(f):
                                 grad_value = (grad[batch_idx, filter_idx,h,w])
-                                print(grad_value)
-                                print(filter_grad[filter_idx].shape)
-                                print(window.shape)
+                                # print(grad_value)
+                                # print(filter_grad[filter_idx].shape)
+                                # print(window.shape)
                                 filter_grad[filter_idx]+=window*grad_value
                     self.filters.grad = filter_grad
             if self.bias.requires_grad:
@@ -167,7 +171,8 @@ class Conv2D:
                             h_start = h *self.stride
                             w_start = w*self.stride
                             window = self.x.data[batch_idx,:,h_start:h_start+a, w_start :w_start+b]
-                            
+                            if ((h_start+a)>self.x.data.shape[2] or (w_start+b)>self.x.data.shape[3]):
+                                continue
                             for filter_idx in range(f):
                                 grad_value = float(grad[batch_idx,filter_idx,h,w])
                               
@@ -181,21 +186,37 @@ class Conv2D:
                             
         return[self.filters, self.bias]
                 
-            
-# Test example
-# Test case with matching dimensions
-batch_size = 1
-in_channels = 1  # Should match the second dimension of filters
-height = 7
-width = 7
-out_channels = 2
-kernel_size = (3, 3)
-stride = 1
-padding = 1
+np.random.seed(42)           
+x = Tensor(np.random.rand(1,1,4,4), requires_grad=True)
+print("Input to maxpool")
+print(x)
 
-x = Tensor(np.random.randn(batch_size, in_channels, height, width))
-conv = Conv2D(in_channels, out_channels, stride, kernel_size, padding)
-output = conv(x)
-print(output.data.shape)
+maxpool = MaxPool()
+stride = 2
+kernel_size = (2,2)
+
+
+output = maxpool(x, stride, kernel_size)
+print("\n Output of Maxpool")
+print(output)
+
 grad = np.ones_like(output.data)
 output.backward(grad)
+print(x.grad)
+
+
+conv = Conv2D(in_features=1, out_features=1, stride=1, kernel_size=(2,2), padding =0)
+x = Tensor(np.random.rand(1,1,4,4), requires_grad=True)
+print(x)
+output = conv(x)
+print("\n Input to conv2d")
+print(output)
+print(output.data.shape)
+grad = np.random.rand(*output.data.shape)
+print(grad)
+output.backward(grad)
+
+print("\nGradients after backward pass in Conv2D:")
+print(f"Input gradient:\n{x.grad}")
+print(f"Filter gradient:\n{conv.filters.grad}")
+print(f"Bias gradient:\n{conv.bias.grad}")
