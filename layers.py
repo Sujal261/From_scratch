@@ -186,37 +186,37 @@ class Conv2D:
                             
         return[self.filters, self.bias]
                 
-np.random.seed(42)           
-x = Tensor(np.random.rand(1,1,4,4), requires_grad=True)
-print("Input to maxpool")
-print(x)
+# np.random.seed(42)           
+# x = Tensor(np.random.rand(1,1,4,4), requires_grad=True)
+# print("Input to maxpool")
+# print(x)
 
-maxpool = MaxPool()
-stride = 2
-kernel_size = (2,2)
-
-
-output = maxpool(x, stride, kernel_size)
-print("\n Output of Maxpool")
-print(output)
-
-grad = np.ones_like(output.data)
-output.backward(grad)
-print(x.grad)
+# maxpool = MaxPool()
+# stride = 2
+# kernel_size = (2,2)
 
 
-conv = Conv2D(in_features=1, out_features=1, stride=1, kernel_size=(2,2), padding =0)
-x = Tensor(np.random.rand(1,1,4,4), requires_grad=True)
-print(x)
-output = conv(x)
-print("\n Input to conv2d")
-print(output)
-print(output.data.shape)
-grad = np.random.rand(*output.data.shape)
-print(grad)
-output.backward(grad)
+# output = maxpool(x, stride, kernel_size)
+# print("\n Output of Maxpool")
+# print(output)
 
-print("\nGradients after backward pass in Conv2D:")
-print(f"Input gradient:\n{x.grad}")
-print(f"Filter gradient:\n{conv.filters.grad}")
-print(f"Bias gradient:\n{conv.bias.grad}")
+# grad = np.ones_like(output.data)
+# output.backward(grad)
+# print(x.grad)
+
+
+# conv = Conv2D(in_features=1, out_features=1, stride=1, kernel_size=(2,2), padding =0)
+# x = Tensor(np.random.rand(1,1,4,4), requires_grad=True)
+# print(x)
+# output = conv(x)
+# print("\n Input to conv2d")
+# print(output)
+# print(output.data.shape)
+# grad = np.random.rand(*output.data.shape)
+# print(grad)
+# output.backward(grad)
+
+# print("\nGradients after backward pass in Conv2D:")
+# print(f"Input gradient:\n{x.grad}")
+# print(f"Filter gradient:\n{conv.filters.grad}")
+# print(f"Bias gradient:\n{conv.bias.grad}")
