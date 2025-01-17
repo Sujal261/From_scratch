@@ -47,16 +47,18 @@ class Flatten:
 
     
 class MaxPool:
-    def __init__(self):
+    def __init__(self, stride, kernel_size):
         self.input = None 
         self.output = None
+        self.stride = stride
+        self.kernel_size = kernel_size
         
-    def __call__(self, x, stride, kernel_size ):
+    def __call__(self, x ):
         self.input = x
-        e, f = kernel_size
+        e, f = self.kernel_size[0], self.kernel_size[1]
         batch_size,channels, i, j = x.data.shape
         
-        g,h = (i-e)//stride+1, (j-f)//stride+1
+        g,h = (i-e)//self.stride+1, (j-f)//self.stride+1
         output = np.zeros((batch_size, channels, g, h))
         max_indices = np.zeros((batch_size, channels, g, h, 2))
         for k in range(batch_size):
@@ -64,8 +66,8 @@ class MaxPool:
                 for a in range(g):
                     
                     for b in range(h):
-                        h_start = a*stride
-                        w_start = b*stride
+                        h_start = a*self.stride
+                        w_start = b*self.stride
                         window = x.data[k, c, h_start:h_start+e, w_start:w_start+f]
                         max_value = np.max(window)
                         flat_index = np.argmax(window)
@@ -87,7 +89,7 @@ class MaxPool:
                             for b in range(h):
                                 
                                 max_row, max_col = map(int,max_indices[k,c,a,b])
-                                print(max_row, max_row)
+                                
                                 maxpool_grad[k,c,max_row, max_col]+=grad[k,c,a,b]
                                 
                 self.input.backward(maxpool_grad)
@@ -142,7 +144,7 @@ class Conv2D:
         requires_grad = self.filters.requires_grad or self.bias.requires_grad or x.requires_grad
                     
         def grad_fn(grad):
-            print(grad.shape)
+            
             if self.filters.requires_grad:
                 filter_grad = np.zeros_like(self.filters.data)
 

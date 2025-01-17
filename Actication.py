@@ -47,7 +47,7 @@ class Softmax:
     def __call__(self, x):
         self.input = x
         x_data = x.data - np.max(x.data, axis = 1, keepdims=True)
-        self.output = np.exp(x_data)/np.sum(np.exp(x_data, axis = 1, keepdims = True))
+        self.output = np.exp(x_data)/np.sum(np.exp(x_data), axis = 1, keepdims = True)
         requires_grad = x.requires_grad
         
         def grad_fn(grad):
