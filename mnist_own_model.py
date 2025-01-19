@@ -13,24 +13,24 @@ data = mnist['data']
 target = mnist['target']
 train_split = int(0.8 * len(data))
 
-#Loading train and test split
+#Loading train and test splitd
 train_data1 = data[:train_split, :]
 train_target1 = target[:train_split]
 test_data1 = data[train_split:,:]
 test_target = target[train_split:]
 
 #Normalizing the data 
-train_data2 = train_data1/16
-test_data2 = test_data1/16
+train_data2 = train_data1/255
+test_data2 = test_data1/255
 
 train_data3 = train_data2.reshape(-1,1,8,8)
 test_data = train_data2.reshape(-1,1,8,8)
 
 
-# target, image = train_target1[2],train_data3[2].squeeze()
-# plt.imshow(image, cmap='gray')
-# plt.title(target)
-# plt.show()
+target, image = train_target1[2],train_data3[2].squeeze()
+plt.imshow(image, cmap='gray')
+plt.title(target)
+plt.show()
 
 indices = np.random.permutation(len(train_data3))  # Get shuffled indices
 
@@ -69,7 +69,7 @@ class MNIST:
 model = MNIST(in_shape=1, out_shape=10, hidden_units=16)
 
 loss_fn = CategoricalCrossEntropyLoss()
-optimizer = Optimizer(model.params(), lr = 0.01)
+optimizer = Optimizer(model.params(), lr = 0.1)
 
 num_epochs = 10
 batch_size= 32

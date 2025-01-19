@@ -41,32 +41,40 @@ class ReLU:
     
 class Softmax:
     def __init__(self):
-        self.input = None 
-        self.output = None 
-        
+        self.input = None
+        self.output = None
+    
     def __call__(self, x):
         self.input = x
-        x_data = x.data - np.max(x.data, axis = 1, keepdims=True)
-        self.output = np.exp(x_data)/np.sum(np.exp(x_data), axis = 1, keepdims = True)
+        
+        # Numerical stability: subtract max
+        x_data = x.data - np.max(x.data, axis=1, keepdims=True)
+        exp_x = np.exp(x_data)
+        self.output = exp_x / np.sum(exp_x, axis=1, keepdims=True)
         requires_grad = x.requires_grad
         
         def grad_fn(grad):
-           if self.input.requires_grad:
-               s= self.output
-               c = len(s)
-               softmax_grad = np.zeros_like(s)
-               
-               for i  in range(c):
-                   for j in range(c):
-                       if i == j:
-                           softmax_grad[i]+=softmax_grad[j]*s[i]*(1-s[i])
-                       else:
-                           softmax_grad[i]+=softmax_grad[j]*(-s[i]*s[j])
-               self.input.backward(softmax_grad)
+            if self.input.requires_grad:
+                # Correct batch handling for softmax gradient
+                batch_size = self.output.shape[0]
+                softmax_grad = np.zeros_like(self.output)
                 
-                           
+                for b in range(batch_size):
+                    s = self.output[b]
+                    g = grad[b]
+                    
+                    # Compute Jacobian
+                    for i in range(len(s)):
+                        for j in range(len(s)):
+                            if i == j:
+                                softmax_grad[b, i] += g[j] * s[i] * (1 - s[i])
+                            else:
+                                softmax_grad[b, i] += g[j] * (-s[i] * s[j])
+                
+                self.input.backward(softmax_grad)
+        
         return Tensor(self.output, requires_grad=requires_grad, grad_fn=grad_fn if requires_grad else None)
-        
 
 
         
+

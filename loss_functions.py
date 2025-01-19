@@ -85,10 +85,3 @@ class CategoricalCrossEntropyLoss:
 
 
     
-# y_pred = Tensor([0.9,0.2,0.8],requires_grad=True)
-# y_true = Tensor([1,0,1], requires_grad=True)
-# bce_loss = BinaryCrossEntropyLoss()
-# loss_tensor = bce_loss(y_pred, y_true)
-# print("Loss value", loss_tensor.data)
-# bce_loss.backward(loss_tensor)
-# print("Gradients :", y_pred.grad)
